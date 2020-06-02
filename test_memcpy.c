@@ -71,7 +71,7 @@ void test_fixed_length_memcpy(void)
 	 *        `--- dst
 	 *
 	 */
-	char *dst = (char*)dst_orig + 4096 - 1;
+	char *dst = (char*)dst_orig + 4096 + 1;
 #if BE_CAREFUL
 	if (buf_len < len) {
 		printf("buf_len %zi < len %zi\n", buf_len, len);

@@ -239,7 +239,8 @@ ENTRY(my_memcpy)
 		.macro	forward_copy_shift pull push
 
 		subs	r2, r2, #28
-		blt	14f
+		//blt	14f
+		blo	14f
 
 	CALGN(	ands	ip, r1, #31		)
 	CALGN(	rsb	ip, ip, #32		)
@@ -256,9 +257,11 @@ ENTRY(my_memcpy)
 		cfi_rel_offset (r10, 16)
 
 	PLD(	pld	[r1, #0]		)
-	PLD(	subs	r2, r2, #96		)
+	//PLD(	subs	r2, r2, #96		)
+	PLD(	cmp	r2, #96			)
 	PLD(	pld	[r1, #28]		)
-	PLD(	blt	13f			)
+	//PLD(	blt	13f			)
+	PLD(	blo	13f			)
 	PLD(	pld	[r1, #60]		)
 	PLD(	pld	[r1, #92]		)
 
@@ -283,9 +286,11 @@ ENTRY(my_memcpy)
 		mov	ip, ip, PULL #\pull
 		orr	ip, ip, lr, PUSH #\push
 		stmia	r0!, {r3, r4, r5, r6, r7, r8, r10, ip}
-		bge	12b
-	PLD(	cmn	r2, #96			)
-	PLD(	bge	13b			)
+		//bge	12b
+		bhs	12b
+	//PLD(	cmn	r2, #96			)
+	//PLD(	cmp	r2, #-96		)
+	//PLD(	bge	13b			)
 
 		pop	{r5 - r8, r10}
 		cfi_adjust_cfa_offset (-20)
