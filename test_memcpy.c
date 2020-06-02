@@ -12,6 +12,7 @@
 //#define NEGATIVE
 
 void *my_memcpy(void *dest, const void *src, size_t n);
+void *my_memmove(void *dest, const void *src, size_t n);
 int my_add(int a, int b, int c);
 
 struct linebuffer {
@@ -53,33 +54,17 @@ void do_memcpy(int len)
 	//close(fd);
 }
 
-int my_add1(int a, int b)
+void test_fixed_length_memcpy(void)
 {
-	return a + b;
-}
-
-int main()
-{
-#if defined(SMALL)
-	int i, len;
-
-	for (i = 0; i < 100; i++) {
-		len = 0 - i;
-		do_memcpy(len);
-	}
-#elif defined(NEGATIVE)
-	//do_memcpy(0xfffffd37);
-	//do_memcpy(0xffffff37);
-	//do_memcpy(0xfffffff7);
-#else
 	const char c_val = 0xba;
 	const char c_init = 0x0;
 	size_t buf_len = 512;
-	size_t len = 257;
+	size_t len = 128;
 	char A[buf_len];
 	char B[buf_len];
 	if (buf_len < len) {
 		printf("buf_len %zi < len %zi\n", buf_len, len);
+		return;
 	}
 	memset(A, c_init, buf_len);
 	memset(B, c_init, buf_len);
@@ -102,6 +87,57 @@ int main()
 		//printf("%x ", A[i]);
 	}
 	printf("%s\n", error_flag ? "Failed" : "OK");
+}
+
+void test_fixed_length_memmove(void)
+{
+	const char c_val = 0xba;
+	const char c_init = 0x0;
+	size_t buf_len = 4096;
+	size_t len = 137;
+	size_t offset = 7;
+	char A[buf_len];
+	char *B = (char *)A + offset;
+	if (buf_len < len) {
+		printf("buf_len %zi < len %zi\n", buf_len, len);
+		return;
+	}
+	memset(A, c_init, buf_len);
+	memset(B, c_val, len);
+	my_memmove(A, B, len);
+	int error_flag = 0;
+	size_t i;
+	for (i = 0; i < len; i++) {
+		if (A[i] != c_val) {
+			printf("Error: expected %x != %x (found)\n", c_val, A[i]);
+			error_flag = 1;
+		}
+		//printf("%x ", A[i]);
+	}
+	printf("%s\n", error_flag ? "Failed" : "OK");
+}
+
+int my_add1(int a, int b)
+{
+	return a + b;
+}
+
+int main()
+{
+#if defined(SMALL)
+	int i, len;
+
+	for (i = 0; i < 100; i++) {
+		len = 0 - i;
+		do_memcpy(len);
+	}
+#elif defined(NEGATIVE)
+	do_memcpy(0xfffffd37);
+	do_memcpy(0xffffff37);
+	do_memcpy(0xfffffff7);
+#else
+	//test_fixed_length_memcpy();
+	test_fixed_length_memmove();
 #endif
 
 	//int a = 0x0, b = 0xf, c = 0xf;

@@ -9,9 +9,11 @@ bin =	test_memcpy
 all: $(bin)
 
 test_memcpy: CFLAGS += --save-temps
-test_memcpy: memcpy.o my_add.o
+test_memcpy: memcpy.o memmove.o my_add.o
 
 memcpy.o: ASFLAGS += --save-temps -Iinclude
+
+memmove.o: ASFLAGS += --save-temps -Iinclude
 
 tags: *.c *.cc *.h *.S
 	ctags -R .
