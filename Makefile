@@ -14,6 +14,7 @@ all: $(bin)
 test_memcpy: memcpy.o memmove.o my_add.o
 
 libunsigned.so: memcpy.o memmove.o
+	$(LD) -shared $(LDFLAGS) -o $@ $^
 
 tags: *.c *.cc *.h *.S
 	ctags -R .
