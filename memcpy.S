@@ -68,7 +68,6 @@ ENTRY(memcpy)
 		cfi_remember_state
 
 		subs	r2, r2, #4
-		// branch if (r2 < 4)
 		blo	8f
 		ands	ip, r0, #3
 	PLD(	pld	[r1, #0]		)
@@ -83,7 +82,6 @@ ENTRY(memcpy)
 		cfi_rel_offset (r6, 4)
 		cfi_rel_offset (r7, 8)
 		cfi_rel_offset (r8, 12)
-		// branch if (r2 < 28) (4 + 28 = 32 total offset)
 		blo	5f
 
 	CALGN(	ands	ip, r1, #31		)
@@ -102,7 +100,6 @@ ENTRY(memcpy)
 	PLD(	pld	[r1, #0]		)
 2:	PLD(	subs	r2, r2, #96		)
 	PLD(	pld	[r1, #28]		)
-		// if ($r2 < 96): branch and return r2 back to positive
 	PLD(	addlo	r2, r2, #96		)
 	PLD(	blo	4f			)
 	PLD(	pld	[r1, #60]		)
@@ -112,7 +109,6 @@ ENTRY(memcpy)
 4:		ldmia	r1!, {r3, r4, r5, r6, r7, r8, ip, lr}
 		subs	r2, r2, #32
 		stmia	r0!, {r3, r4, r5, r6, r7, r8, ip, lr}
-		// branch if ($r2 >= 32)
 		bhs	3b
 
 5:		ands	ip, r2, #28

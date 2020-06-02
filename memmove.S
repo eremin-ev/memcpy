@@ -85,8 +85,6 @@ ENTRY(memmove)
 		add	r1, r1, r2
 		add	r0, r0, r2
 		subs	r2, r2, #4
-		// branch if (r2 < 4)
-		//blt	8f
 		blo	8f
 		ands	ip, r0, #3
 	PLD(	pld	[r1, #-4]		)
@@ -101,8 +99,6 @@ ENTRY(memmove)
 		cfi_rel_offset (r6, 4)
 		cfi_rel_offset (r7, 8)
 		cfi_rel_offset (r8, 12)
-		// branch if (r2 < 28) (4 + 28 = 32 total offset)
-		//blt	5f
 		blo     5f
 
 	CALGN(	ands	ip, r1, #31		)
@@ -120,10 +116,8 @@ ENTRY(memmove)
 	PLD(	pld	[r1, #-4]		)
 2:	PLD(	subs	r2, r2, #96		)
 	PLD(	pld	[r1, #-32]		)
-		// if ($r2 < 96): branch and return r2 back to positive
 	PLD(    addlo   r2, r2, #96             )
 	PLD(    blo     4f                      )
-	//PLD(	blt	4f			)
 	PLD(	pld	[r1, #-64]		)
 	PLD(	pld	[r1, #-96]		)
 
@@ -131,10 +125,6 @@ ENTRY(memmove)
 4:		ldmdb	r1!, {r3, r4, r5, r6, r7, r8, ip, lr}
 		subs	r2, r2, #32
 		stmdb	r0!, {r3, r4, r5, r6, r7, r8, ip, lr}
-	//	bge	3b
-	//PLD(	cmn	r2, #96			)
-	//PLD(	bge	4b			)
-		// branch if ($r2 >= 32)
 		bhs     3b
 
 5:		ands	ip, r2, #28
