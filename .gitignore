@@ -1,4 +1,6 @@
 *.o
 *.i
 *.s
+*.so
+tags
 test_memcpy
