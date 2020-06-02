@@ -100,3 +100,5 @@
 	ASM_SIZE_DIRECTIVE(name)
 
 #define libc_hidden_builtin_def(entry)
+
+#define IS_IN(arg)	0

@@ -65,16 +65,15 @@
  * normally a bit faster. Otherwise the copy is done going downwards.
  */
 
-ENTRY(my_memmove)
+ENTRY(memmove)
 
 		subs	ip, r0, r1
 		cmphi	r2, ip
-//#if !IS_IN (libc)
-//		bls	memcpy
-//#else
-//		bls	HIDDEN_JUMPTARGET(memcpy)
-//#endif
-		bls	my_memcpy
+#if !IS_IN (libc)
+		bls	memcpy
+#else
+		bls	HIDDEN_JUMPTARGET(memcpy)
+#endif
 
 		push	{r0, r4, lr}
 		cfi_adjust_cfa_offset (12)
@@ -247,7 +246,7 @@ ENTRY(my_memmove)
 		strbge	r4, [r0, #-1]!
 		subs	r2, r2, ip
 		strb	lr, [r0, #-1]!
-		blt	8b
+		blo	8b
 		ands	ip, r1, #3
 		beq	1b
 
@@ -261,7 +260,7 @@ ENTRY(my_memmove)
 		.macro	backward_copy_shift push pull
 
 		subs	r2, r2, #28
-		blt	14f
+		blo	14f
 
 	CALGN(	ands	ip, r1, #31		)
 	CALGN(	rsb	ip, ip, #32		)
@@ -278,9 +277,9 @@ ENTRY(my_memmove)
 		cfi_rel_offset (r10, 16)
 
 	PLD(	pld	[r1, #-4]		)
-	PLD(	subs	r2, r2, #96		)
+	PLD(	cmp	r2, r2, #96		)
 	PLD(	pld	[r1, #-32]		)
-	PLD(	blt	13f			)
+	PLD(	blo	13f			)
 	PLD(	pld	[r1, #-64]		)
 	PLD(	pld	[r1, #-96]		)
 
@@ -305,9 +304,7 @@ ENTRY(my_memmove)
 		mov     r4, r4, PUSH #\push
 		orr     r4, r4, r3, PULL #\pull
 		stmdb   r0!, {r4 - r8, r10, ip, lr}
-		bge	12b
-	PLD(	cmn	r2, #96			)
-	PLD(	bge	13b			)
+		bhs	12b
 
 		pop	{r5 - r8, r10}
 		cfi_adjust_cfa_offset (-20)
@@ -342,5 +339,5 @@ ENTRY(my_memmove)
 18:		backward_copy_shift	push=24	pull=8
 
 
-END(my_memmove)
+END(memmove)
 libc_hidden_builtin_def (memmove)

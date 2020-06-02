@@ -12,8 +12,6 @@
 //#define SMALL
 //#define NEGATIVE
 
-void *my_memcpy(void *dest, const void *src, size_t n);
-void *my_memmove(void *dest, const void *src, size_t n);
 int my_add(int a, int b, int c);
 
 struct linebuffer {
@@ -31,8 +29,7 @@ void do_memcpy(int len)
 	memset(lb.buf + 1024, 'B', 1024);
 	lb.len = len;
 
-	//memcpy(lb.buf, lb.buf + 1024, lb.len);
-	my_memcpy(lb.buf, lb.buf + 1024, lb.len);
+	memcpy(lb.buf, lb.buf + 1024, lb.len);
 
 	int i, nr = 0, continuous_nr = 0;
 	int continuous = lb.buf[0] == 'B';
@@ -62,7 +59,8 @@ void test_fixed_length_memcpy(void)
 	size_t buf_len = 4096;
 	size_t len = -1;
 	char *src = malloc(buf_len);
-	char *dst_orig = malloc(2*buf_len);
+	char *dst_orig = malloc(buf_len);
+	//char *dst_orig = malloc(2*buf_len);
 	/*
 	 * +------+------+
 	 * | page | page |
@@ -71,7 +69,9 @@ void test_fixed_length_memcpy(void)
 	 *        `--- dst
 	 *
 	 */
-	char *dst = (char*)dst_orig + 4096 + 1;
+	//char *dst = (char*)dst_orig;
+	char *dst = (char*)dst_orig + 4096 - 1;
+	//char *dst = (char*)dst_orig + 4096 + 1;
 #if BE_CAREFUL
 	if (buf_len < len) {
 		printf("buf_len %zi < len %zi\n", buf_len, len);
@@ -81,7 +81,7 @@ void test_fixed_length_memcpy(void)
 	memset(src, c_init, buf_len);
 	memset(dst, c_init, buf_len);
 	memset(src, c_val, buf_len);
-	my_memcpy(dst, src, len);
+	memcpy(dst + 0, src + 0, 4294967291U);
 	int error_flag = 0;
 	size_t i;
 	for (i = 0; i < len; i++) {
@@ -106,29 +106,23 @@ void test_fixed_length_memcpy(void)
 void test_fixed_length_memmove(void)
 {
 	size_t i;
-	const char c_init = 0x0;
-	size_t buf_len = 4096;
+	size_t buf_len = 2*4096;
 	size_t len = -1;
-	size_t offset = 1;
-	//char src[buf_len];
-	char *src = malloc(buf_len);
+	size_t offset = +1;
+	char *buf = malloc(buf_len);
+	char *src = (char *)buf + 4096;
 	char *dst = (char *)src + offset;
+	int error_flag = 0;
 #if BE_CAREFUL
 	if (buf_len < len) {
 		printf("buf_len %zi < len %zi\n", buf_len, len);
 		return;
 	}
 #endif
-	memset(src, c_init, buf_len);
-	//memset(src, c_val, len);
 	for (i = 0; i < buf_len; i++) {
-		src[i] = i;
+		buf[i] = i;
 	}
-	// src < dst ?
-	my_memcpy(dst, src, len);
-	//my_memmove(dst, src, len);
-	int error_flag = 0;
-#if BE_CAREFUL
+	memmove(dst, src, len);
 	for (i = 0; i < len; i++) {
 		if (dst[i] != i) {
 			printf("Error: expected %x != %x (found)\n", i, dst[i]);
@@ -137,14 +131,8 @@ void test_fixed_length_memmove(void)
 		}
 		//printf("%x ", A[i]);
 	}
-#endif
-	printf("%s\n", error_flag ? "Failed" : "OK");
-	free(src);
-}
-
-int my_add1(int a, int b)
-{
-	return a + b;
+	printf("len %i %s\n", len, error_flag ? "Failed" : "OK");
+	free(buf);
 }
 
 int main()
@@ -161,8 +149,8 @@ int main()
 	do_memcpy(0xffffff37);
 	do_memcpy(0xfffffff7);
 #else
-	test_fixed_length_memcpy();
-	//test_fixed_length_memmove();
+	//test_fixed_length_memcpy();
+	test_fixed_length_memmove();
 #endif
 
 	//int a = 0x0, b = 0xf, c = 0xf;

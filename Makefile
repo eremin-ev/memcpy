@@ -1,19 +1,19 @@
 VPATH = lib
 #-Werror
 WALL = -W -Wall -Wint-to-pointer-cast
-CFLAGS = $(WALL) -O0 -g $(DBG)
+CFLAGS = $(WALL) -O0 -g $(DBG) --save-temps
 #CFLAGS = $(WALL) -O2
+LDFLAGS = -fPIC
+CPPFLAGS = --save-temps -Iinclude
 
-bin =	test_memcpy
+bin =	test_memcpy \
+	libunsigned.so
 
 all: $(bin)
 
-test_memcpy: CFLAGS += --save-temps
 test_memcpy: memcpy.o memmove.o my_add.o
 
-memcpy.o: ASFLAGS += --save-temps -Iinclude
-
-memmove.o: ASFLAGS += --save-temps -Iinclude
+libunsigned.so: memcpy.o memmove.o
 
 tags: *.c *.cc *.h *.S
 	ctags -R .
