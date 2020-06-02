@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -58,63 +59,87 @@ void test_fixed_length_memcpy(void)
 {
 	const char c_val = 0xba;
 	const char c_init = 0x0;
-	size_t buf_len = 512;
-	size_t len = 128;
-	char A[buf_len];
-	char B[buf_len];
+	size_t buf_len = 4096;
+	size_t len = -1;
+	char *src = malloc(buf_len);
+	char *dst_orig = malloc(2*buf_len);
+	/*
+	 * +------+------+
+	 * | page | page |
+	 * +------+------+
+	 *       ^
+	 *        `--- dst
+	 *
+	 */
+	char *dst = (char*)dst_orig + 4096 - 1;
+#if BE_CAREFUL
 	if (buf_len < len) {
 		printf("buf_len %zi < len %zi\n", buf_len, len);
 		return;
 	}
-	memset(A, c_init, buf_len);
-	memset(B, c_init, buf_len);
-	memset(B, c_val, buf_len);
-	my_memcpy(A, B, len);
+#endif
+	memset(src, c_init, buf_len);
+	memset(dst, c_init, buf_len);
+	memset(src, c_val, buf_len);
+	my_memcpy(dst, src, len);
 	int error_flag = 0;
 	size_t i;
 	for (i = 0; i < len; i++) {
-		if (A[i] != c_val) {
-			printf("Error: expected %x != %x (found)\n", c_val, A[i]);
+		if (dst[i] != c_val) {
+			printf("Error: expected %x != %x (found)\n", c_val, dst[i]);
 			error_flag = 1;
+			break;
 		}
-		//printf("%x ", A[i]);
 	}
 	for (; i < buf_len; i++) {
-		if (A[i] != c_init) {
-			printf("Error: expected %x != %x (found)\n", c_init, A[i]);
+		if (dst[i] != c_init) {
+			printf("Error: expected %x != %x (found)\n", c_init, dst[i]);
 			error_flag = 1;
+			break;
 		}
-		//printf("%x ", A[i]);
 	}
 	printf("%s\n", error_flag ? "Failed" : "OK");
+	free(dst_orig);
+	free(src);
 }
 
 void test_fixed_length_memmove(void)
 {
-	const char c_val = 0xba;
+	size_t i;
 	const char c_init = 0x0;
 	size_t buf_len = 4096;
-	size_t len = 137;
-	size_t offset = 7;
-	char A[buf_len];
-	char *B = (char *)A + offset;
+	size_t len = -1;
+	size_t offset = 1;
+	//char src[buf_len];
+	char *src = malloc(buf_len);
+	char *dst = (char *)src + offset;
+#if BE_CAREFUL
 	if (buf_len < len) {
 		printf("buf_len %zi < len %zi\n", buf_len, len);
 		return;
 	}
-	memset(A, c_init, buf_len);
-	memset(B, c_val, len);
-	my_memmove(A, B, len);
+#endif
+	memset(src, c_init, buf_len);
+	//memset(src, c_val, len);
+	for (i = 0; i < buf_len; i++) {
+		src[i] = i;
+	}
+	// src < dst ?
+	my_memcpy(dst, src, len);
+	//my_memmove(dst, src, len);
 	int error_flag = 0;
-	size_t i;
+#if BE_CAREFUL
 	for (i = 0; i < len; i++) {
-		if (A[i] != c_val) {
-			printf("Error: expected %x != %x (found)\n", c_val, A[i]);
+		if (dst[i] != i) {
+			printf("Error: expected %x != %x (found)\n", i, dst[i]);
 			error_flag = 1;
+			break;
 		}
 		//printf("%x ", A[i]);
 	}
+#endif
 	printf("%s\n", error_flag ? "Failed" : "OK");
+	free(src);
 }
 
 int my_add1(int a, int b)
@@ -136,8 +161,8 @@ int main()
 	do_memcpy(0xffffff37);
 	do_memcpy(0xfffffff7);
 #else
-	//test_fixed_length_memcpy();
-	test_fixed_length_memmove();
+	test_fixed_length_memcpy();
+	//test_fixed_length_memmove();
 #endif
 
 	//int a = 0x0, b = 0xf, c = 0xf;

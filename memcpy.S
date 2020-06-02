@@ -225,7 +225,8 @@ ENTRY(my_memcpy)
 		strbge	r4, [r0], #1
 		subs	r2, r2, ip
 		strb	lr, [r0], #1
-		blt	8b
+		//blt	8b
+		blo	8b
 		ands	ip, r1, #3
 		beq	1b
 
