@@ -98,9 +98,8 @@ ENTRY(memcpy)
 #endif
 
 	PLD(	pld	[r1, #0]		)
-2:	PLD(	subs	r2, r2, #96		)
+2:	PLD(	cmp	r2, #96			)
 	PLD(	pld	[r1, #28]		)
-	PLD(	addlo	r2, r2, #96		)
 	PLD(	blo	4f			)
 	PLD(	pld	[r1, #60]		)
 	PLD(	pld	[r1, #92]		)
