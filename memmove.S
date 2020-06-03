@@ -267,7 +267,7 @@ ENTRY(memmove)
 		cfi_rel_offset (r10, 16)
 
 	PLD(	pld	[r1, #-4]		)
-	PLD(	cmp	r2, r2, #96		)
+	PLD(	cmp	r2, #96			)
 	PLD(	pld	[r1, #-32]		)
 	PLD(	blo	13f			)
 	PLD(	pld	[r1, #-64]		)
