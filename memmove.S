@@ -114,9 +114,8 @@ ENTRY(memmove)
 #endif
 
 	PLD(	pld	[r1, #-4]		)
-2:	PLD(	subs	r2, r2, #96		)
+2:	PLD(	cmp	r2, #96			)
 	PLD(	pld	[r1, #-32]		)
-	PLD(    addlo   r2, r2, #96             )
 	PLD(    blo     4f                      )
 	PLD(	pld	[r1, #-64]		)
 	PLD(	pld	[r1, #-96]		)
