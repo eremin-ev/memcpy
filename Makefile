@@ -11,7 +11,9 @@ bin =	test_memcpy \
 
 all: $(bin)
 
-test_memcpy: memcpy.o memmove.o my_add.o
+test_memcpy: memcpy.o memmove.o
+
+test_add: my_add.o
 
 libunsigned.so: memcpy.o memmove.o
 	$(LD) -shared $(LDFLAGS) -o $@ $^

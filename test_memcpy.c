@@ -12,8 +12,6 @@
 //#define SMALL
 //#define NEGATIVE
 
-int my_add(int a, int b, int c);
-
 struct linebuffer {
 	int bufsz;
 	int nl_pos;
@@ -152,9 +150,6 @@ int main()
 	//test_fixed_length_memcpy();
 	test_fixed_length_memmove();
 #endif
-
-	//int a = 0x0, b = 0xf, c = 0xf;
-	//printf("my_add %i + %i + %i = %i\n", a, b, c, my_add(a, b, c));
 
 	return 0;
 }
